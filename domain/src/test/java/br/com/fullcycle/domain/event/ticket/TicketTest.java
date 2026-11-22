@@ -39,4 +39,16 @@ public class TicketTest {
         Assertions.assertEquals(expectedCustomerId, actualTicket.customerId());
         Assertions.assertEquals(expectedTicketStatus, actualTicket.status());
     }
+    @Test
+    @DisplayName("Deve cancelar ingresso de forma idempotente")
+    public void shouldCancelTicketIdempotently() {
+        var partner = Partner.newPartner("John Doe", "41.536.538/0001-00", "john.doe@gmail.com");
+        var customer = Customer.newCustomer("John Doe", "123.456.789-01", "john.doe@gmail.com");
+        var event = Event.newEvent("Disney", "2021-01-01", 10, partner);
+        var ticket = Ticket.newTicket(customer.customerId(), event.eventId());
+        ticket.cancel();
+        ticket.cancel();
+        Assertions.assertEquals(TicketStatus.CANCELLED, ticket.status());
+    }
+
 }

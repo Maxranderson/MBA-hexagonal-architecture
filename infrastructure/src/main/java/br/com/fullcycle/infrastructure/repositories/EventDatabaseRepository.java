@@ -65,6 +65,7 @@ public class EventDatabaseRepository implements EventRepository {
                         .map(it -> OutboxEntity.of(it, this::toJson))
                         .toList()
         );
+        event.clearDomainEvents();
 
         return this.eventJpaRepository.save(EventEntity.of(event))
                 .toEvent();

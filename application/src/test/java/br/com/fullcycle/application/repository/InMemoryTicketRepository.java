@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.List;
+import br.com.fullcycle.domain.event.EventId;
 
 public class InMemoryTicketRepository implements TicketRepository {
 
@@ -32,6 +34,11 @@ public class InMemoryTicketRepository implements TicketRepository {
     public Ticket update(Ticket ticket) {
         this.tickets.put(ticket.ticketId().value(), ticket);
         return ticket;
+    }
+
+    @Override
+    public List<Ticket> ticketsByEventId(EventId eventId) {
+        return tickets.values().stream().filter(t -> t.eventId().equals(eventId)).toList();
     }
 
     @Override

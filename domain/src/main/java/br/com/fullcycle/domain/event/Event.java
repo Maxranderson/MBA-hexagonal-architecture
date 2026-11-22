@@ -26,6 +26,7 @@ public class Event {
     private LocalDate date;
     private int totalSpots;
     private PartnerId partnerId;
+    private EventStatus status;
 
     public Event(
             final EventId eventId,
@@ -50,6 +51,7 @@ public class Event {
         this.eventId = eventId;
         this.tickets = tickets != null ? tickets : new HashSet<>(0);
         this.domainEvents = new HashSet<>(2);
+        this.status = EventStatus.ACTIVE;
     }
 
     public static Event newEvent(final String name, final String date, final Integer totalSpots, final Partner partner) {
@@ -67,7 +69,17 @@ public class Event {
         return new Event(EventId.with(id), name, date, totalSpots, PartnerId.with(partnerId), tickets);
     }
 
+    public static Event restore(final String id, final String name, final String date, final int totalSpots,
+                                final String partnerId, final Set<EventTicket> tickets, final EventStatus status) {
+        final Event event = new Event(EventId.with(id), name, date, totalSpots, PartnerId.with(partnerId), tickets);
+        event.status = status == null ? EventStatus.ACTIVE : status;
+        return event;
+    }
+
     public EventTicket reserveTicket(final CustomerId aCustomerId) {
+        if (status == EventStatus.CANCELLED) {
+            throw new ValidationException("Event is cancelled");
+        }
         this.allTickets().stream()
                 .filter(it -> Objects.equals(it.customerId(), aCustomerId))
                 .findFirst()
@@ -87,6 +99,16 @@ public class Event {
 
         return aTicket;
     }
+
+    public void cancel() {
+        if (status == EventStatus.CANCELLED) {
+            throw new ValidationException("Event already cancelled");
+        }
+        this.status = EventStatus.CANCELLED;
+        this.domainEvents.add(new EventCancelled(eventId));
+    }
+
+    public EventStatus status() { return status; }
 
     public EventId eventId() {
         return eventId;
@@ -115,6 +137,8 @@ public class Event {
     public Set<DomainEvent> allDomainEvents() {
         return Collections.unmodifiableSet(domainEvents);
     }
+
+    public void clearDomainEvents() { domainEvents.clear(); }
 
     @Override
     public boolean equals(Object o) {

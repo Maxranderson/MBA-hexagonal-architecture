@@ -50,6 +50,8 @@ public class Ticket {
         return aTicket;
     }
 
+    public void cancel() { this.status = TicketStatus.CANCELLED; }
+
     public TicketId ticketId() {
         return ticketId;
     }
@@ -77,6 +79,8 @@ public class Ticket {
     public Set<DomainEvent> allDomainEvents() {
         return Collections.unmodifiableSet(domainEvents);
     }
+
+    public void clearDomainEvents() { domainEvents.clear(); }
 
     @Override
     public boolean equals(Object o) {

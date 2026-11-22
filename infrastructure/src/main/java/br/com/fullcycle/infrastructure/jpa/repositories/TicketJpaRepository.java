@@ -4,7 +4,9 @@ import br.com.fullcycle.infrastructure.jpa.entities.TicketEntity;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.UUID;
+import java.util.List;
 
 public interface TicketJpaRepository extends CrudRepository<TicketEntity, UUID> {
+    List<TicketEntity> findAllByEventId(UUID eventId);
 
 }

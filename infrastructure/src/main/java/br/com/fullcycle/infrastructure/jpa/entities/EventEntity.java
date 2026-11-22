@@ -2,6 +2,7 @@ package br.com.fullcycle.infrastructure.jpa.entities;
 
 import br.com.fullcycle.domain.event.Event;
 import br.com.fullcycle.domain.event.EventTicket;
+import br.com.fullcycle.domain.event.EventStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -26,6 +27,9 @@ public class EventEntity {
     private int totalSpots;
 
     private UUID partnerId;
+
+    @Enumerated(EnumType.STRING)
+    private EventStatus status = EventStatus.ACTIVE;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "event")
     private Set<EventTicketEntity> tickets;
@@ -52,6 +56,7 @@ public class EventEntity {
                 UUID.fromString(event.partnerId().value())
         );
 
+        entity.status = event.status();
         event.allTickets().forEach(entity::addTicket);
 
         return entity;
@@ -66,7 +71,8 @@ public class EventEntity {
                 this.partnerId().toString(),
                 this.tickets().stream()
                         .map(EventTicketEntity::toEventTicket)
-                        .collect(Collectors.toSet())
+                        .collect(Collectors.toSet()),
+                this.status
         );
     }
 
